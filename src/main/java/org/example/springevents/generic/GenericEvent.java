@@ -1,18 +1,37 @@
 package org.example.springevents.generic;
 
 import lombok.Builder;
+import lombok.Getter;
+import org.springframework.context.ApplicationEvent;
 
-@Builder
-public class GenericEvent<T> {
+import java.io.Serializable;
+import java.util.function.Function;
 
-    private T data;
+@Getter
+public class GenericEvent<T> extends ApplicationEvent implements Serializable {
 
-    private boolean isSuccess;
+    private final T data;
 
-    private Action.CallBack<?, ?> callBack;
+    private final boolean isSuccess;
 
-    private Action.Success<?, ?> success;
+    private final SerializableFunction<?, ?> callBack;
 
-    private Action.Failed<?, ?> failed;
+    private final SerializableFunction<?, ?> success;
 
+    private final SerializableFunction<?, ?> failed;
+
+    @Builder
+    public GenericEvent(Object source, T data, boolean success, SerializableFunction<?, ?> callBack,
+                        SerializableFunction<?, ?> successCallback, SerializableFunction<?, ?> failedCallback) {
+        super(source);
+        this.data = data;
+        this.isSuccess = success;
+        this.callBack = callBack;
+        this.success = successCallback;
+        this.failed = failedCallback;
+    }
+
+    @FunctionalInterface
+    public interface SerializableFunction<T, R> extends Function<T, R>, Serializable {
+    }
 }
